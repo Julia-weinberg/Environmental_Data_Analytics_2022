@@ -1,6 +1,6 @@
 ---
 title: "Assignment 2: Coding Basics"
-author: "Student Name"
+author: "Julia Weinberg"
 output: pdf_document
 geometry: margin=2.54cm
 editor_options: 
@@ -32,10 +32,17 @@ This exercise accompanies the lessons in Environmental Data Analytics on coding 
 
 ```{r}
 #1. 
+seq(1,100,4) #from, to, by
+count_to_100_seq <-seq(1,100,4) #name sequence
 
 #2. 
+mean(count_to_100_seq) #average number of the sequence
+median(count_to_100_seq) #middle number in the sequence
 
 #3. 
+mean(count_to_100_seq)>median(count_to_100_seq) 
+#returns true if mean is greater than median and false in other conditions
+
 
 ```
 
@@ -50,21 +57,49 @@ This exercise accompanies the lessons in Environmental Data Analytics on coding 
 8. Label the columns of your data frame with informative titles.
 
 ```{r}
+#5
+student_names <- c("Julia","John","Max","Sarah") #character vector
+student_names
+student_grades <- c(95,83,48,72) #numeric vector
+student_grades
+student_pass <- c(TRUE,TRUE,FALSE,TRUE) #logical vector
+student_pass
+#7
+
+passing.scores.dataframe <-data.frame(student_names,student_grades,student_pass) 
+#combing vectors into data frame
+
+#8
+
+names(passing.scores.dataframe) <-c("Name","Score","Passed"); View(passing.scores.dataframe) #label columns of data
+
+passing.scores.dataframe
+
+
+
+
 
 ```
 
 9. QUESTION: How is this data frame different from a matrix?
 
-> Answer: 
+> Answer: A matrix only contains data of one type, such as all numeric, all character, or all logical data. However, a data frame can combine different kinds of data into function.
 
 10. Create a function with an if/else statement. Your function should determine whether a test score is a passing grade of 50 or above (TRUE or FALSE). You will need to choose either the `if` and `else` statements or the `ifelse` statement. Hint: Use `print`, not `return`. The name of your function should be informative.
 
 11. Apply your function to the vector with test scores that you created in number 5. 
 
 ```{r}
+#10
+student_pass<-function(x){
+  ifelse(x>=50, print(TRUE), print(FALSE))
+  } #function to determine if student had a passing score
 
+#11
+test_score<-student_pass(passing.scores.dataframe$Score)
+test_score
 ```
 
 12. QUESTION: Which option of `if` and `else` vs. `ifelse` worked? Why?
 
-> Answer: 
+> Answer: 'ifelse' worked and 'if' and 'else' did not work. This is because the 'if' and 'else' statements would only check if there is an occurance where the statement can be true or false. Therefore based on my data set, when I used 'if' and 'else' it returned TRUE only one time each sinc the first occurance was true in the dataframe. However, when I used 'ifelse' it returned with TRUE and FALSE an appropriate nubmer of times for how often the condition of x>=50 was met. 
