@@ -70,7 +70,7 @@ library(dplyr)
 library(ggplot2)
 
 # Some packages are umbrellas under which other packages are loaded
-#install.packages("tidyverse")
+install.packages("tidyverse")
 library(tidyverse)
 
 ```
