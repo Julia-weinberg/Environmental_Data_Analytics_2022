@@ -33,15 +33,15 @@ the processed data file for the Niwot Ridge litter dataset (use the [`NEON_NIWO_
 
 ```{r}
 #1
-#getwd()
+getwd()
 #install(tidyverse)
 library(tidyverse)
 #install(cowplot)
 library(cowplot)
 
-NTL.LTER <- read.csv("./Data/Processed/NTL-LTER_Lake_Chemistry_Nutrients_PeterPaul_Processed.csv")
+NTL.LTER <- read.csv("../Data/Processed/NTL-LTER_Lake_Chemistry_Nutrients_PeterPaul_Processed.csv")
 #import NTL.LTER
-Niwot <- read.csv("./Data/Processed/NEON_NIWO_Litter_mass_trap_Processed.csv")
+Niwot <- read.csv("../Data/Processed/NEON_NIWO_Litter_mass_trap_Processed.csv")
 #import Niwot
 
 #2 
