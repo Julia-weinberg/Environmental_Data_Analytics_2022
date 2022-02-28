@@ -22,7 +22,7 @@ The analysis of variance (ANOVA), and linear regression are special cases of the
 
 **One-way ANOVA (Analysis of Variance):** Continuous response, one categorical explanatory variable with more than two categories.
 
-**Two-way ANOVA (Analysis of Variance)** Continuous response, two categorical explanatory variables.
+**Two-way (Analysis of Variance)** Continuous response, two categorical explanatory variables.
 
 **Single Linear Regression** Continuous response, one continuous explanatory variable.
 

@@ -1,6 +1,6 @@
----
+ ---
 title: "Assignment 6: GLMs (Linear Regressios, ANOVA, & t-tests)"
-author: "Student Name"
+author: "Julia Weinberg"
 output: pdf_document
 geometry: margin=2.54cm
 editor_options: 
@@ -26,12 +26,22 @@ The completed exercise is due on Monday, February 28 at 7:00 pm.
 2. Build a ggplot theme and set it as your default theme.
 
 ```{r setup}
-#1
+#1 
+getwd()
+library(tidyverse)
+library(agricolae)
+library(lubridate)
 
+NTL_LTER <- read.csv("./Data/Raw/NTL-LTER_Lake_ChemistryPhysics_Raw.csv", stringsAsFactors = TRUE, header = TRUE)
 
+NTL_LTER$sampledate <- as.Date(NTL_LTER$sampledate , format = "%m/%d/%y") 
+#format as date function
 #2
 
-
+my.theme <- theme_gray(base_size = 14) + #set base theme and size
+  theme(axis.text = element_text(color = "darkblue"),  #color text dark blue
+        legend.position = "bottom") #align legend on bottom
+theme_set(my.theme) #set theme
 ```
 
 ## Simple regression
@@ -39,8 +49,10 @@ Our first research question is: Does mean lake temperature recorded during July 
 
 3. State the null and alternative hypotheses for this question:
 > Answer:
-H0: 
-Ha: 
+H0: There is no relationship between depth and lake temperature 
+recorded in July.
+Ha: There is a relationship between lake temperature 
+and depth recorded in July.
 
 
 4.  Wrangle your NTL-LTER dataset with a pipe function so that the records meet the following criteria: 
@@ -53,30 +65,45 @@ Ha:
 ```{r scatterplot}
 #4
 
+July.Temps <- NTL_LTER %>%
+  mutate(month = month(sampledate))%>% #add column for month
+  filter(month == "7") %>% #only include dates with July as month
+  select(lakename, year4, daynum, depth, temperature_C)%>% #select variables
+filter(!is.na(temperature_C)) #filter out NA's
+
+
 
 #5
-
+temp.by.depth <- ggplot(July.Temps, aes(x = depth, y = temperature_C)) + 
+  #plot temp by depth
+  geom_point()+
+  ylim(0, 35)+ #limit data plotted 
+  geom_smooth(method = "lm", color = "purple")+ #add best fit line
+my.theme #include my theme
+print(temp.by.depth) #print graph
 
 ```
 
 
 6. Interpret the figure. What does it suggest with regards to the response of temperature to depth? Do the distribution of points suggest about anything about the linearity of this trend?
 
-> Answer: 
+> Answer: This plot shows that as depth increases, temperature tends to decrease, therefore pointing to an inverse relationship between the two variables. However, this relationship is not entirely linear as temperature decreases begin to level off as depth continues to increase. 
 
 
 7. Perform a linear regression to test the relationship and display the results
 
 ```{r linear.regression}
 #7
-
+temp.depth.reg <- lm(data = July.Temps, temperature_C ~ depth) 
+#linear regression of july temperature by lake depth
+summary(temp.depth.reg) #summary of regrerssion
 
 ```
 
 
 8. Interpret your model results in words. Include how much of the variability in temperature is explained by changes in depth, the degrees of freedom on which this finding is based, and the statistical significance of the result. Also mention how much temperature is predicted to change for every 1m change in depth. 
 
-> Answer:
+> Answer: The R-squared value is 0.7387, which is closer to one, which would mean that the two variables are perfectly correlated. The p-value is 2.2e-16, which is much smaller than 0.05, therefore meaning that we should reject the null hypothesis, showing that there is some relationship between temperature and depth. The estimate for depth is -1.95, meaning that for every increase in depth of 1m, temperature decreased by 1.95 degrees C. 
 
 
 ---
@@ -91,17 +118,27 @@ Let's tackle a similar question from a different approach. Here, we want to expl
 
 ```{r temperature.model}
 #9
+library(dplyr)
 
+TEMP.by.all.regression <- lm(data = July.Temps.subset, temperature_C ~ depth + 
+              year4 + daynum) 
+#create regression of temperature with chosen variables
+
+step(TEMP.by.all.regression) #get step values
 
 
 #10
 
 
+TEMP.by.all.regression <- lm(data = LTER.AIC, temperature_C ~ depth + year4 + 
+daynum)
+summary(TEMP.by.all.regression) #get summary of temperature by chosen variables
+
 ```
 
 11. What is the final set of explanatory variables that the AIC method suggests we use to predict temperature in our multiple regression? How much of the observed variance does this model explain? Is this an improvement over the model using only depth as the explanatory variable?
 
-> Answer: 
+> Answer: The final set of variables is depth, daynum, and year. The AIC suggests that using depth, year, and daynum provides a better correlation to temperature than just depth alone. When depth was used alone, only 73.87% of variance in lake temperature was accounted for, however when year and daynum are added, 74.11% of the variance in temperature is accounted for. 
 
 
 
@@ -112,6 +149,12 @@ Let's tackle a similar question from a different approach. Here, we want to expl
 
 ```{r anova.model}
 #12
+july.temp.anova <- aov(data = July.Temps , temperature_C ~ lakename)
+summary(july.temp.anova) #create anova of July temps by chosen variables
+
+july.temp.linear <- lm(data = July.Temps, temperature_C ~ lakename)
+summary(july.temp.linear) 
+#create linear regression of July temps by chosen variables
 
 
 ```
@@ -127,20 +170,26 @@ Let's tackle a similar question from a different approach. Here, we want to expl
 ```{r scatterplot.2}
 #14.
 
-
+plot.of.temp.by.depth <- ggplot(July.Temps, aes(x = depth, y = temperature_C, color = lakename))+
+  geom_point(alpha = 0.5)+ #set transparancy to 50%
+  ylim(0, 35)+ #limit data plotted 
+  geom_smooth(method = "lm", se = FALSE)+#add best fit line
+my.theme #include by theme
+print(plot.of.temp.by.depth) #print graph
+ 
 ```
 
 15. Use the Tukey's HSD test to determine which lakes have different means.
 
 ```{r tukey.test}
 #15
-
+TukeyHSD(july.temp.anova) #use Tukey's HSD test
 
 ```
 
 16.From the findings above, which lakes have the same mean temperature, statistically speaking, as Peter Lake? Does any lake have a mean temperature that is statistically distinct from all the other lakes?
 
->Answer:
+>Answer: Central Long Lake, Crampton Lake, East Long Lake, Tuesday Lake, and West Long Lake all have statistically similar mean. 
 
  
 
