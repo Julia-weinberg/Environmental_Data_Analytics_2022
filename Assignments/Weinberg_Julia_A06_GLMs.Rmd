@@ -1,4 +1,9 @@
- ---
+---
+output:
+  pdf_document: default
+  html_document: default
+---
+---
 title: "Assignment 6: GLMs (Linear Regressios, ANOVA, & t-tests)"
 author: "Julia Weinberg"
 output: pdf_document
@@ -32,7 +37,7 @@ library(tidyverse)
 library(agricolae)
 library(lubridate)
 
-NTL_LTER <- read.csv("./Data/Raw/NTL-LTER_Lake_ChemistryPhysics_Raw.csv", stringsAsFactors = TRUE, header = TRUE)
+NTL_LTER <- read.csv("../Data/Raw/NTL-LTER_Lake_ChemistryPhysics_Raw.csv", stringsAsFactors = TRUE, header = TRUE)
 
 NTL_LTER$sampledate <- as.Date(NTL_LTER$sampledate , format = "%m/%d/%y") 
 #format as date function
@@ -120,19 +125,19 @@ Let's tackle a similar question from a different approach. Here, we want to expl
 #9
 library(dplyr)
 
-TEMP.by.all.regression <- lm(data = July.Temps.subset, temperature_C ~ depth + 
+TEMP.regression <- lm(data = July.Temps, temperature_C ~ depth + 
               year4 + daynum) 
 #create regression of temperature with chosen variables
 
-step(TEMP.by.all.regression) #get step values
+step(TEMP.regression) #get step values
 
 
 #10
 
 
-TEMP.by.all.regression <- lm(data = LTER.AIC, temperature_C ~ depth + year4 + 
+TEMP.regression.model <- lm(data = July.Temps, temperature_C ~ depth + year4 + 
 daynum)
-summary(TEMP.by.all.regression) #get summary of temperature by chosen variables
+summary(TEMP.regression.model) #get summary of temperature by chosen variables
 
 ```
 
@@ -161,7 +166,7 @@ summary(july.temp.linear)
 
 13. Is there a significant difference in mean temperature among the lakes? Report your findings. 
 
-> Answer: 
+> Answer: Yes, there is a significant differnce between all of the lakes as they all have p-values less than 0.05.
 
 
 
@@ -189,12 +194,12 @@ TukeyHSD(july.temp.anova) #use Tukey's HSD test
 
 16.From the findings above, which lakes have the same mean temperature, statistically speaking, as Peter Lake? Does any lake have a mean temperature that is statistically distinct from all the other lakes?
 
->Answer: Central Long Lake, Crampton Lake, East Long Lake, Tuesday Lake, and West Long Lake all have statistically similar mean. 
+>Answer: Paul lake is the only one with a similar temperature. Its difference in temperature mean is closest to Peter Lake at only -0.49, however it is not a statistically significant similarity as its p-value is greater than 0.05. Central Long Lake is most distinct form the other lakes as it has the greatest difference in mean temperature comapred to the other lakes in the data set. 
 
  
 
 17. If we were just looking at Peter Lake and Paul Lake. What's another test we might explore to see whether they have distinct mean temperatures? 
 
->Answer: 
+>Answer: A HSD test would be good to use as it would group lakes that are similar to one another by letter categories. 
 
 
