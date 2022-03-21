@@ -1,11 +1,13 @@
 ---
-title: "Assignment 9: Spatial Analysis in R"
+title: 'Assignment 9: Spatial Analysis in R'
 author: "Julia Weinberg"
-output: pdf_document
+output:
+  html_document:
+    df_print: paged
 geometry: margin=2.54cm
-editor_options: 
+editor_options:
   chunk_output_type: console
-  markdown: 
+  markdown:
     wrap: 72
 ---
 
@@ -39,6 +41,8 @@ library(tidyverse)
 library(sf)
 library(mapview)
 library(leaflet)
+
+mapviewOptions(fgb = FALSE)
 ```
 
 ### Read (and filter) county features into an sf dataframe and plot
@@ -52,15 +56,15 @@ In this exercise, we will be exploring stream gage height data in Nebraska corre
 ```{r Read the county data into an sf dataframe}
 #3. Read in Counties shapefile into an sf dataframe, filtering for just NE counties
 
-Stream_data <- st_read('./Data/Spatial/cb_2018_us_county_20m.shp') %>%
+Counties_data <- st_read('./Data/Spatial/cb_2018_us_county_20m.shp') %>%
  filter(STATEFP == 31)
 
 #4. Reveal the CRS of the counties features
-st_crs(Stream_data)
+st_crs(Counties_data)
 
 #5. Plot the data
 
-mapview(Stream_data)
+mapview(Counties_data)
 ```
 
 6. What is the EPSG code of the Counties dataset? Is this a geographic or a projected coordinate reference system? (Or, does this CRS use angular or planar coordinate units?) To what datum is this CRS associated? (Tip: look the EPSG code on <https://spatialreference.org>) 
@@ -132,9 +136,9 @@ colnames(NWIS.SF)
 #13. Plot the gage locations atop the county features
 
 ggplot() +
-  geom_sf(data = Stream_data,color='blue') + 
-  geom_sf(data = NWIS.SF,color='red',shape='O') +
-  labs(title = "NWIS Gage Locations in Nebraska", x = "Julia Weinberg")
+  geom_sf(data = Counties_data,color='purple') + 
+  geom_sf(data = NWIS.SF,color='black') +
+  labs(title = "NWIS Gage Locations in Nebraska", subtitle = "Julia Weinberg")
 
 ```
 
@@ -156,21 +160,23 @@ Lastly, we want to attach some gage height data to our site locations. I've cons
 
 Flow_data <- read.csv('./Data/Raw/NWIS_SiteFlowData_NE_RAW.csv', stringsAsFactors = TRUE)
 
+
 #15. Show the column names
 
 colnames(Flow_data)
 
 #16. Join location data to it
 
-Nebraska_data <- merge(x = NWIS.SF, y = Flow_data, by.x = "site_no", by.y = "site_no") #join data frames
+gage.height <- merge(x = NWIS.SF, y = Flow_data, by.x = "site_no", by.y = "site_no") #join data frames
+
 
 #17. Show the column names of the joined dataset
 
-colnames(Nebraska_data)
+colnames(gage.height)
 
 #18. Show the dimensions of this joined dataset
 
-dim(Nebraska_data)
+dim(gage.height)
 ```
 
 ### Map the pattern of gage height data
@@ -182,12 +188,15 @@ Now we can examine where the flooding appears most acute by visualizing gage hei
 ```{r}
 #Map the points, sized by gage height
 
-ggplot() +
-  geom_sf(data = Nebraska_data,color='blue') + 
-  geom_sf(data = NWIS.SF,color='red',shape='O') +
-  labs(title = "NWIS Gage Locations in Nebraska", x = "Julia Weinberg")
+gage.height.sf <- gage.height %>%
+  st_as_sf(coords = c('geometry'),
+           crs = 4269)
 
-#ggplot
+
+
+mapview(Counties_data)+ 
+  mapview(gage.height.sf, cex = "gage_ht", color = "black")
+
 
 
 ```
@@ -207,9 +216,13 @@ Up next we will do some spatial analysis with our data. To prepare for this, we 
 ```{r}
 #20 Transform the counties and gage location datasets to UTM Zone 14
 
+Counties_data.sf.utm <- st_transform(Counties_data,32614)
+NWIS.SF.utm <- st_transform(NWIS.SF,32614)
 
 #21 Plot the data
 
+mapview(Counties_data.sf.utm, color = "pink")+ 
+  mapview(NWIS.SF.utm, color = "orange", shape = "0")
 
 ```
 
@@ -227,13 +240,19 @@ Now let's zoom into a particular county and examine the gages located there.
 
 ```{r}
 #22 Select the county
-
+Lancaster.data <- Counties_data.sf.utm %>% 
+  filter(NAME == "Lancaster")
 
 #23 Select gages within the selected county
-
+Lancaster.data.gage <- NWIS.SF.utm[Lancaster.data,]
+mapview(Lancaster.data.gage)
 
 #24 Plot
 
-
+ggplot() +
+  geom_sf(data = Counties_data,color='purple') + 
+  geom_sf(data = Lancaster.data,color='red') +
+  geom_sf(data = Lancaster.data.gage, color = 'black')+
+  labs(title = "Lancaster County, Nebraska Gage Locations", subtitle = "Julia Weinberg")
 
 ```
