@@ -23,10 +23,10 @@ library(viridis)
 #install.packages("rvest")
 library(rvest)
 
-#install.packages("dataRetrieval")
+install.packages("dataRetrieval")
 library(dataRetrieval)
 
-#install.packages("tidycensus")
+install.packages("tidycensus")
 library(tidycensus)
 
 # Set theme
